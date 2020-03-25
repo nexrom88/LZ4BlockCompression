@@ -79,3 +79,8 @@ target.Write(buffer, 0, bytesToRead);
 bs.Close();
 target.Close();
 ```
+
+# Annotations
+
+For using this library within your c# project you also need to install lz4 library from K4os e.g. by using the nuget package manager. For details: https://github.com/MiloszKrajewski/K4os.Compression.LZ4
+
