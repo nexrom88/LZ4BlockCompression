@@ -41,16 +41,40 @@ Like compressing data you can also decompress data like using an usual stream:
 System.IO.FileStream source = new System.IO.FileStream("c:\\target\\numbers.lz4", System.IO.FileMode.Open, System.IO.FileAccess.Read);
 BlockCompression.LZ4BlockStream bs = new BlockCompression.LZ4BlockStream(source, BlockCompression.AccessMode.read);
 
-System.IO.FileStream target = new System.IO.FileStream("c:\\target\\numbers_dec_part.bin", System.IO.FileMode.Create, System.IO.FileAccess.Write);
+System.IO.FileStream target = new System.IO.FileStream("c:\\target\\numbers_dec.bin", System.IO.FileMode.Create, System.IO.FileAccess.Write);
 
 int readBytes = -1;
-bs.Seek(4 * 10000, System.IO.SeekOrigin.Begin);
 while (readBytes != 0)
 {
-    byte[] buffer = new byte[1000000];
+    byte[] buffer = new byte[128];
     readBytes = bs.Read(buffer, 0, buffer.Length);
     target.Write(buffer, 0, readBytes);
 }
+
+bs.Close();
+target.Close();
+```
+
+# Decompressing a segment of data
+
+By using the "seek" method you can decompress just a segment of data. In this example here we want to decompress 30 bytes starting at offset 50:
+
+```c#
+System.IO.FileStream source = new System.IO.FileStream("c:\\target\\numbers.lz4", System.IO.FileMode.Open, System.IO.FileAccess.Read);
+BlockCompression.LZ4BlockStream bs = new BlockCompression.LZ4BlockStream(source, BlockCompression.AccessMode.read);
+
+System.IO.FileStream target = new System.IO.FileStream("c:\\target\\numbers_dec_part.bin", System.IO.FileMode.Create, System.IO.FileAccess.Write);
+
+int readBytes = 0;
+bs.Seek(50, System.IO.SeekOrigin.Begin);
+int bytesToRead = 30;
+byte[] buffer = new byte[bytesToRead];
+
+while (readBytes < bytesToRead)
+{                
+    readBytes += bs.Read(buffer, readBytes, buffer.Length);                
+}
+target.Write(buffer, 0, bytesToRead);
 
 bs.Close();
 target.Close();
